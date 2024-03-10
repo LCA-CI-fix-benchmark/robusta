@@ -8,9 +8,7 @@ from uuid import UUID
 import requests
 from pydantic import BaseModel, SecretStr, validator
 
-from robusta.core.exceptions import AlertsManagerNotFound, NoAlertManagerUrlFound
-from robusta.core.model.base_params import ActionParams
-from robusta.integrations.prometheus.utils import AlertManagerDiscovery, ServiceDiscovery
+from robusta.utils.silence_utils import BaseSilenceParams, get_alertmanager_silences_connection
 from src.robusta.integrations import openshift
 
 # ref to api https://github.com/prometheus/alertmanager/blob/main/api/v2/openapi.yaml
