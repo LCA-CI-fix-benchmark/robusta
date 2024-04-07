@@ -8,12 +8,15 @@ from uuid import UUID
 import requests
 from pydantic import BaseModel, SecretStr, validator
 
+```python
 from robusta.core.exceptions import AlertsManagerNotFound, NoAlertManagerUrlFound
 from robusta.core.model.base_params import ActionParams
 from robusta.integrations.prometheus.utils import AlertManagerDiscovery, ServiceDiscovery
-from src.robusta.integrations import openshift
+import os
+from src.robusta.integrations.openshift import openshift  # Add this line to import openshift module
 
 # ref to api https://github.com/prometheus/alertmanager/blob/main/api/v2/openapi.yaml
+```
 
 
 class Matcher(BaseModel):
