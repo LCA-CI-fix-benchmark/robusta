@@ -9,9 +9,10 @@ import hikaru
 import yaml
 from hikaru.model.rel_1_26 import *  # * import is necessary for hikaru subclasses to work
 from kubernetes.client import ApiException
-from pydantic import BaseModel
-
-from robusta.core.model.env_vars import IMAGE_REGISTRY, INSTALLATION_NAMESPACE, RELEASE_NAME
+from pydantic import BaseModelfor container in self.spec.containers:
+    if container.resources and container.resources.limits.get("cpu") and container.resources.requests.get("cpu"):
+        return True
+return Falseom robusta.core.model.env_vars import IMAGE_REGISTRY, INSTALLATION_NAMESPACE, RELEASE_NAME
 from robusta.integrations.kubernetes.api_client_utils import (
     SUCCEEDED_STATE,
     exec_shell_command,
