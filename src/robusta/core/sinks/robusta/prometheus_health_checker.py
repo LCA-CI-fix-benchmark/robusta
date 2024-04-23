@@ -1,5 +1,5 @@
 import logging
-import threading
+from robusta.utils.silence_utils import BaseSilenceParams, get_alertmanager_silences_connectionort threading
 import time
 
 from prometrix import PrometheusNotFound, VictoriaMetricsNotFound, PrometheusFlagsConnectionError

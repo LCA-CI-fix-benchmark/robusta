@@ -7,9 +7,14 @@ Getting Support
    :maxdepth: 1
    :hidden:
 
-   docs-contributions
-
-Ask for help, or just say hi!
+   docs-contribu                raise e
+              File "/app/src/robusta/core/discovery/discovery.py", line 280, in discover_resources
+                return future.result()
+              File "/usr/local/lib/python3.9/concurrent/futures/_base.py", line 446, in result
+                return self.__get_result()
+              File "/usr/local/lib/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+                raise self._exception
+            concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.k for help, or just say hi!
 
 .. grid:: 5
    :gutter: 3

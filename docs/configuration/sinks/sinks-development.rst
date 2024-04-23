@@ -1,5 +1,7 @@
 Developing a New Sink
-################################
+########2. Add a new Python module inside `src/robusta/core/sinks <https://github.com/robusta-dev/robusta/tree/master/src/robusta/core/sinks>`_ containing your sink’s source code
+3. Implement a sink config class
+4. Implement a sink class#####################
 
 If Robusta doesn't support the sink you need, consider implementing your own.
 
