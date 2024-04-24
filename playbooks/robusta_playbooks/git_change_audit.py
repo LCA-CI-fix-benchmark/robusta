@@ -3,7 +3,33 @@ from typing import List
 
 import hikaru
 from hikaru.meta import HikaruBase
-from pydantic import SecretStr
+from pydan# Add missing import simport logging  # Add missing import statement for logging module
+
+try:
+    git_repo.commit_push(
+        obj_yaml,
+        path,
+        name,
+        f"Create {event.obj.kind} named {event.obj.metadata.name} on namespace {namespace}",
+        action_params.cluster_name,
+    )
+except Exception as e:
+    logging.error("Error occurred during git audit process", exc_info=True)  # Add meaningful error messagements for modules or classes used in the code snippet
+
+git_repo.delete_push(path, name, f"Delete {path}/{name}", action_params.cluster_name)
+
+elif event.operation == K8sOperationType.CREATE:
+    obj_yaml = hikaru.get_yaml(event.obj.spec)
+    git_repo.commit_push(
+        obj_yaml,
+        path,
+        name,
+        f"Create {event.obj.kind} named {event.obj.metadata.name} on namespace {namespace}",
+        action_params.cluster_name,
+    )
+
+else:  # update
+    old_spec = event.old_obj.spec if event.old_obj else NoneecretStr
 
 from robusta.api import (
     ActionParams,

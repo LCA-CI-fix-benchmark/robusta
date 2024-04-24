@@ -8,10 +8,243 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type, TypeVar
 import hikaru
 import yaml
 from hikaru.model.rel_1_26 import *  # * import is necessary for hikaru subclasses to work
+from kubernetes.client imimport logging
+import time
+from typing import Optional, Dict, List
 from kubernetes.client import ApiException
-from pydantic import BaseModel
+fromimport logging
+import time
+from typing import Dict, List, Optional, Type
+from kubernetes.client import ApiException
+fromfrom hikaru.models import PodSpec, Container, Pod, Deployment, Job
+from robusta.integrations.kubernetes.custom_models import RobustaPod, RobustaDeployment, RobustaJob
+from robusta.utils.kubernetes_utils import to_kubernetes_name, prepare_pod_command
 
-from robusta.core.model.env_vars import IMAGE_REGISTRY, INSTALLATION_NAMESPACE, RELEASE_NAME
+def run_simple_job(cls, image, command, timeout) -> str:
+    spec = PodSpec(
+        containers=[
+            Container(
+                name=to_kubernetes_name(image),
+                image=image,
+                command=prepare_pod_command(command),
+            )
+        ],
+        restartPolicy="Never",
+    )
+    return cls.run_simple_job_spec(spec, name=image, timeout=timeout)
+
+hikaru.register_version_kind_class(RobustaPod, Pod.apiVersion, Pod.kind)
+hikaru.register_version_kind_class(RobustaDeployment, Deployment.apiVersion, Deployment.kind)
+hikaru.register_version_kind_class(RobustaJob, Job.apiVersion, Job.kind)t.models.v1_pod import V1Pod
+from kubernetes.client.models.v1_pod_list import V1PodList
+from hikaru import Pod, OwnerReference, Secret
+from hikaru.base import BaseModel
+from hikaru.models import Job, JobSpec, PodTemplateSpec
+from robusta.integrations.kubernetes.custom_models import RobustaDeployment
+from robusta.integrations.kubernetes.debugger.robusta_pod import RobustaPod, Process, ProcessList
+from robusta.utils.file_utils import upload_file
+from robusta.utils.kubernetes_utils import get_images, get_deployment_yaml, prepare_pod_command, wait_until_job_complete
+
+class RobustaDeployment:
+    @classmethod
+    def from_image(cls: Type[T], name, image="busybox", cmd=None) -> T:
+        obj: RobustaDeployment = hikaru.from_dict(yaml.safe_load(get_deployment_yaml(name, image)), RobustaDeployment)
+        obj.spec.template.spec.containers[0].command = prepare_pod_command(cmd)
+        return obj
+
+    @staticmethod
+    def wait_for_deployment_ready(name: str, namespace: str, timeout: int = 60) -> "RobustaDeployment":
+        """
+        Waits for the deployment to be ready, i.e., the expected number of pods are running.
+        """
+        for _ in range(timeout):  # retry for up to timeout seconds
+            try:
+                deployment = RobustaDeployment().read(name, namespace)
+                if deployment.status.readyReplicas == deployment.spec.replicas:
+                    return deployment
+            except ApiException as e:
+                if e.status != 404:  # re-raise the exception if it's not a NotFound error
+                    raise
+            time.sleep(1)
+        else:
+            raise RuntimeError(f"Deployment {name} in namespace {namespace} is not ready after {timeout} seconds")
+
+class JobSecret(BaseModel):
+    name: str
+    data: Dict[str, str]
+
+class RobustaJob(Job):
+    def get_pods(self) -> List[RobustaPod]:
+        """
+        gets the pods associated with a job
+        """
+        pods: PodList = PodList.listNamespacedPod(
+            self.metadata.namespace, label_selector=f"job-name = {self.metadata.name}"
+        ).obj
+        # we serialize and then deserialize to work around https://github.com/haxsaw/hikaru/issues/15
+        return [hikaru.from_dict(pod.to_dict(), cls=RobustaPod) for pod in pods.items]
+
+    def get_single_pod(self) -> RobustaPod:
+        """
+        like get_pods() but verifies that only one pod is associated with the job and returns that pod
+        """
+        pods = self.get_pods()
+        if len(pods) != 1:
+            raise Exception(f"got more pods than expected for job: {pods}")
+        return pods[0]
+
+    def create_job_owned_secret(self, job_secret: JobSecret):
+        """
+        This secret will be auto-deleted when the pod is Terminated
+        """
+        # Due to inconsistant GC in K8s the OwnerReference needs to be the pod and not the job (Found in azure)
+        job_pod = self.get_single_pod()
+        robusta_owner_reference = OwnerReference(
+            apiVersion="v1",
+            kind="Pod",
+            name=job_pod.metadata.name,
+            uid=job_pod.metadata.uid,
+            blockOwnerDeletion=False,
+            controller=True,
+        )
+        secret = Secret(
+            metadata=ObjectMeta(name=job_secret.name, ownerReferences=[robusta_owner_reference]), data=job_secret.data
+        )
+        try:
+            return secret.createNamespacedSecret(job_pod.metadata.namespace).obj
+        except Exception as e:
+            logging.error(f"Failed to create secret {job_secret.name}", exc_info=True)
+            raise e
+
+    @classmethod
+    def run_simple_job_spec(
+        cls,
+        spec,
+        name,
+        timeout,
+        job_secret: Optional[JobSecret] = None,
+        custom_annotations: Optional[Dict[str, str]] = None,
+    ) -> str:
+        job = RobustaJob(
+            metadata=ObjectMeta(
+                namespace=INSTALLATION_NAMESPACE, name=to_kubernetes_name(name), annotations=custom_annotations
+            ),
+            spec=JobSpec(
+                backoffLimit=0,
+                template=PodTemplateSpec(spec=spec, metadata=ObjectMeta(annotations=custom_annotations)),
+            ),
+        )
+        try:
+            job = job.createNamespacedJob(job.metadata.namespace).obj
+            job = hikaru.from_dict(job.to_dict(), cls=RobustaJob)  # temporary workaround for hikaru bug #15
+            if job_secret:
+                job.create_job_owned_secret(job_secret)
+            job: RobustaJob = wait_until_job_complete(job, timeout)s.v1_pod import V1Pod
+from kubernetes.client.models.v1_pod_list import V1PodList
+from hikaru import Pod
+from hikaru.base import load_json
+from robusta.integrations.debugger import PYTHON_DEBUGGER_IMAGE
+from robusta.integrations.debugger.robusta_pod import RobustaPod, Process, ProcessList
+from robusta.utils.file_utils import upload_file
+
+class RobustaPod:
+    @staticmethod
+    def exec_in_debugger_pod(
+        pod_name: str,
+        node_name: str,
+        cmd,
+        debug_image=PYTHON_DEBUGGER_IMAGE,
+        custom_annotations: Optional[Dict[str, str]] = None,
+    ) -> str:
+        debugger = RobustaPod.create_debugger_pod(
+            pod_name, node_name, debug_image, custom_annotations=custom_annotations
+        )
+        try:
+            return debugger.exec(cmd)
+        finally:
+            RobustaPod.deleteNamespacedPod(debugger.metadata.name, debugger.metadata.namespace)
+
+    @staticmethod
+    def extract_container_id(status: V1ContainerStatus) -> str:
+        runtime, container_id = status.containerID.split("://")
+        return container_id
+
+    def get_processes(self, custom_annotations: Optional[Dict[str, str]] = None) -> List[Process]:
+        container_ids = " ".join([self.extract_container_id(s) for s in self.status.containerStatuses])
+        output = RobustaPod.exec_in_debugger_pod(
+            self.metadata.name,
+            self.spec.nodeName,
+            f"debug-toolkit pod-ps {self.metadata.uid} {container_ids}",
+            custom_annotations=custom_annotations,
+        )
+        processes = ProcessList(**load_json(output))
+        return processes.processes
+
+    def get_images(self) -> Dict[str, str]:
+        return get_images(self.spec.containers)
+
+    def has_direct_owner(self, owner_uid) -> bool:
+        for owner in self.metadata.ownerReferences:
+            if owner.uid == owner_uid:
+                return True
+        return False
+
+    def has_toleration(self, toleration_key):
+        return any(toleration_key == toleration.key for toleration in self.spec.tolerations)
+
+    def has_cpu_limit(self) -> bool:
+        for container in self.spec.containers:
+            if container.resources and container.resources.limits.get("cpu"):
+                return True
+        return False
+
+    def upload_file(self, path: str, contents: bytes, container: Optional[str] = None):
+        if container is None:
+            container = self.spec.containers[0].name
+            logging.info(f"no container name given when uploading file, so choosing first container: {container}")
+        upload_file(
+            self.metadata.name,
+            path,
+            contents,
+            namespace=self.metadata.namespace,
+            container=container,
+        )
+
+    @staticmethod
+    def find_pods_with_direct_owner(namespace: str, owner_uid: str) -> List["RobustaPod"]:
+        all_pods: List["RobustaPod"] = V1PodList.listNamespacedPod(namespace).obj.items
+        return list(filter(lambda p: p.has_direct_owner(owner_uid), all_pods))
+
+    @staticmethod
+    def find_pod(name_prefix, namespace) -> "RobustaPod":
+        pods: V1PodList = V1PodList.listNamespacedPod(namespace).obj
+        for pod in pods.items:
+            if pod.metadata.name.startswith(name_prefix):
+                # we serialize and then deserialize to work around https://github.com/haxsaw/hikaru/issues/15
+                return hikaru.from_dict(pod.to_dict(), cls=RobustaPod)
+        raise Exception(f"No pod exists in namespace '{namespace}' with name prefix '{name_prefix}'")
+
+    @staticmethod
+    def read(name: str, namespace: str) -> "RobustaPod":
+        """Read pod definition from the API server"""
+        return Pod.readNamespacedPod(name, namespace).obj
+
+    @staticmethod
+    def wait_for_pod_ready(pod_name: str, namespace: str, timeout: int = 60) -> "RobustaPod":
+        """
+        Waits for the pod to be in Running state
+        """
+        for _ in range(timeout):  # retry for up to timeout seconds
+            try:
+                pod = RobustaPod().read(pod_name, namespace)
+                if pod.status.phase == "Running":
+                    return pod
+            except ApiException as e:
+                if e.status != 404:  # re-raise the exception if it's not a NotFound error
+                    raise
+            time.sleep(1)
+        else:
+            raise RuntimeError(f"Pod {pod_name} in namespace {namespace} is not ready after {timeout} seconds")TRY, INSTALLATION_NAMESPACE, RELEASE_NAME
 from robusta.integrations.kubernetes.api_client_utils import (
     SUCCEEDED_STATE,
     exec_shell_command,

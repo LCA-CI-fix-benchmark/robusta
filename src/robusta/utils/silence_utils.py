@@ -1,5 +1,20 @@
-import json
-import logging
+import jsonfrom robusta.core.model.base_params import ActionPaimport loggiimport logging  # Add missing import statement for logging module
+
+def auto_openshift_token(cls, v: Optional[SecretStr]):
+    # If openshift is enabled, and the user didn't configure alertmanager_auth, we will try to load the token from the service account
+    if v is not None:
+        return v
+
+    openshift_token = openshift.load_token()
+    if openshift_token is not None:
+        logging.info(f"Using openshift token from {openshift.TOKEN_LOCATION} for alertmanager auth")
+        return SecretStr(f"Bearer {openshift_token}")missing import statement for logging module
+
+def validate_alertmanager_url(cls, v):
+    if v and not v.startswith("http"):  # if the user configured url without http(s)
+        v = f"http://{v}"
+        logging.info(f"Adding protocol to alertmanager_url: {v}")from robusta.integrations.prometheus.utils import AlertManagerDiscovery, ServiceDiscovery
+from robusta.integrations import openshift logging
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional

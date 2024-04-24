@@ -1,7 +1,14 @@
 import argparse
 import glob
-import importlib
-import inspect
+import impimport os  # Import the os module for file operations
+import importlib.util  # Import the importlib.util module for module loading
+
+for script in python_files:
+    print(f"loading playbooks {script}")
+    filename = os.path.basename(script)
+    (module_name, ext) = os.path.splitext(filename)
+    spec = importlib.util.spec_from_file_location(module_name, script)
+    module = importlib.util.module_from_spec(spec)import inspect
 import os
 from typing import Callable
 

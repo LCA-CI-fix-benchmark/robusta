@@ -6,7 +6,12 @@ import pkgutil
 import subprocess
 import sys
 import threading
-from inspect import getmembers
+from inspect import getmembeimport logging  # Add missing import statement for logging module
+
+try:
+    # code block where the module is loaded
+except Exception:
+    logging.error(f"Failed to load module: {playbooks_module}", exc_info=True)  # Improve error message for better understanding
 from typing import Dict, Optional
 
 import yaml
