@@ -1,6 +1,42 @@
-import logging
-import threading
+iimport threading
 import time
+
+from prometrix import PrometheusNotFound, VictoriaMetricsNotFound, PrometheusFlagsConnectionError
+from pydantic import BaseModel
+
+from robusta.core.exceptions import (
+    AlertsManagerNotFound,
+    NoAlertManagerUrlFound,
+    NoPrometheusUrlFound,
+)
+from robusta.core.model.base_params import PrometheusParams
+from robusta.core.model.env_vars import PROMETHEUS_ERROR_LOG_PERIOD_SEC
+from robusta.integrations.prometheus.utils import get_prometheus_connect, get_prometheus_flags
+from robusta.utils.silence_utils import BaseSilenceParams, get_alertmanager_silences_connection
+
+
+class PrometheusHealthStatus(BaseModel):
+    prometheus: bool = True
+    prometheus_retention_time: str = ""
+    alertmanager: bool = True
+
+
+class PrometheusHealthChecker:
+    def __init__(self, discovery_period_sec: int, global_config: dict):
+        self.status: PrometheusHealthStatus = PrometheusHealthStatus()
+        self.__discovery_period_sec = discovery_period_sec
+        self.__prometheus_error_log_period_sec = PROMETHEUS_ERROR_LOG_PERIOD_SEC
+        self.__global_config = global_config
+
+        self.__last_alertmanager_error_log_time = 0
+        self.__last_prometheus_error_log_time = 0
+        self.__check_prometheus_flags = True
+
+        self.__thread = threading.Thread(target=self.__run_checks)
+        self.__thread.start()
+
+    def get_status(self) -> PrometheusHealthStatus:
+        return self.statusime
 
 from prometrix import PrometheusNotFound, VictoriaMetricsNotFound, PrometheusFlagsConnectionError
 from pydantic import BaseModel

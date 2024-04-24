@@ -1,10 +1,147 @@
-import logging
-from enum import Enum, auto
-from typing import Dict, List, Optional, Union
-
+import from enum import Enum
+from typing import Optional, Dict, List
 from pydantic import BaseModel, SecretStr, validator
+import logging
+import openshift
 
-from robusta.integrations import openshift
+class ChartValuesFormat(Enum):
+    """
+    Format option for chart rendering
+    """
+
+    Plain = auto()
+    Bytes = auto()
+    Percentage = auto()
+    CPUUsage = auto()
+
+class ResourceChartItemType(Enum):
+    """
+    Item selection for Alert resource enricher
+    """
+
+    Pod = auto()
+    Node = auto()
+    Container = auto()
+
+class ResourceChartResourceType(Enum):
+    """
+    Resource selection for resource enricher(s)
+    """
+
+    CPU = auto()
+    Memory = auto()
+    Disk = auto()
+
+class OverrideGraph(BaseModel):
+    """
+    A class for overriding prometheus graphs
+    :var resource_type: one of: CPU, Memory, Disk (see ResourceChartResourceType)
+    :var item_type: one of: Pod, Node (see ResourceChartItemType)
+    :var query: the prometheusql query you want to run
+    :var values_format: Customize the y-axis labels with one of: Plain, Bytes, Percentage (see ChartValuesFormat)
+    """
+
+    resource_type: str
+    item_type: str
+    query: str
+    values_format: Optional[str]
+
+class ActionParams(BaseModel):
+    """
+    Base class for all Action parameter classes.
+    """
+
+    def post_initialization(self):
+        """
+        This function can be used to run post initialization logic on the action params
+        """
+        pass
+
+class PodRunningParams(ActionParams):
+    """
+    :var custom_annotations: custom annotations to be used for the running pod/job
+    """
+
+    custom_annotations: Optional[Dict[str, str]] = None
+
+class VideoEnricherParams(ActionParams):
+    """
+    :var url: Url to the external video that should be added to a finding
+    """
+
+    url: str
+    name: Optional[str]
+
+class RateLimitParams(ActionParams):
+    """
+    :var rate_limit: Rate limit the execution of this action (Seconds).
+    """
+
+    rate_limit: int = 3600
+
+class FindingKeyParams(ActionParams):
+    """
+    :var finding_key: Specify the finding identifier, to reference it in other actions.
+    """
+
+    finding_key: str = "DEFAULT"
+
+class BashParams(PodRunningParams):
+    """
+    :var bash_command: Bash command to execute on the target.
+
+    :example bash_command: ls -l /etc/data/db
+    """
+
+    bash_command: str
+
+class PrometheusParams(ActionParams):
+    """
+    :var prometheus_url: Prometheus url. If omitted, we will try to find a prometheus instance in the same cluster
+    :var prometheus_auth: Prometheus auth header to be used in Authorization header. If omitted, we will not add any auth header
+    :var prometheus_url_query_string: Additional query string parameters to be appended to the Prometheus connection URL
+    :var prometheus_additional_labels: A dictionary of additional labels needed for multi-cluster prometheus
+    :var add_additional_labels: adds the additional labels (if defined) to the query
+
+    :example prometheus_url: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
+    :example prometheus_auth: Basic YWRtaW46cGFzc3dvcmQ=
+    :example prometheus_url_query_string: "demo-query=example-data"
+    :example prometheus_additional_labels:
+               - cluster: 'cluster-2-test'
+               - env: 'prod'
+
+    """
+
+    prometheus_url: Optional[str] = None
+    prometheus_auth: Optional[SecretStr] = None
+    prometheus_url_query_string: Optional[str] = None
+    prometheus_additional_labels: Optional[Dict[str, str]] = None
+    add_additional_labels: bool = True
+    prometheus_graphs_overrides: Optional[List[OverrideGraph]] = None
+
+    @validator("prometheus_url", allow_reuse=True)
+    def validate_protocol(cls, v):
+        if v and not v.startswith("http"):  # if the user configured url without http(s)
+            v = f"http://{v}"
+            logging.info(f"Adding protocol to prometheus_url: {v}")
+        return v
+
+    @validator("prometheus_url_query_string", allow_reuse=True)
+    def validate_query_string(cls, v):
+        if v and v.startswith("?"):  # if the user configured query string is using '?'
+            v = v.lstrip("?")
+            logging.info(f"Stripping '?' off prometheus_url_query_string: {v}")
+        return v
+
+    @validator("prometheus_auth", allow_reuse=True, always=True)
+    def auto_openshift_token(cls, v: Optional[SecretStr]):
+        # If openshift is enabled, and the user didn't configure prometheus_auth, we will try to load the token from the service account
+        if v is not None:
+            return v
+
+        openshift_token = openshift.load_token()
+        if openshift_token is not None:
+            logging.info(f"Using openshift token from {openshift.TOKEN_LOCATION} for prometheus auth")tegrations import openshift
 from robusta.utils.documented_pydantic import DocumentedModel
 
 

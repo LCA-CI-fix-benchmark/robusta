@@ -1,4 +1,11 @@
-from typing import Optional
+from timport openshift
+
+# NOTE: This one will be mounted if openshift is enabled in values.yaml
+try:
+    # Add your code logic here
+except Exception as e:
+    # Handle exceptions here
+    passing import Optional
 
 TOKEN_LOCATION = '/var/run/secrets/kubernetes.io/serviceaccount/token'
 

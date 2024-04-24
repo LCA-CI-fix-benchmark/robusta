@@ -2,7 +2,13 @@
 
 import logging
 import traceback
-from abc import abstractmethod
+from abc impfrom requests import Response
+
+@staticmethod
+def read_resource(kind: str, name: str, namespace: str = None) -> Response:
+    resource_mapper = LOADERS_MAPPINGS.get(kind.lower())
+    if not resource_mapper:
+        raise ResourceLoaderNotFoundError("Resource loader not found for kind: {}".format(kind))bstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Union
 

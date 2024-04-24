@@ -1,5 +1,25 @@
 import json
-import logging
+imimport logging
+
+from requests import Response
+from robusta.integrations.alert_manager.connection import AlertManagerConnection
+
+def get_alertmanager_silences_connection(url: str) -> AlertManagerConnection:
+    """
+    Get the connection to AlertManager to manage silences.
+    
+    Args:
+        url: The URL of the AlertManager instance.
+    
+    Returns:
+        AlertManagerConnection: Connection to the AlertManager instance.
+    """
+    try:
+        connection = AlertManagerConnection(url)
+        return connection
+    except Exception as e:
+        logging.error(f"Failed to establish connection to AlertManager at {url}: {e}")
+        raiseort logging
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional
