@@ -14,8 +14,6 @@ from robusta.core.model.base_params import PrometheusParams
 from robusta.core.model.env_vars import PROMETHEUS_ERROR_LOG_PERIOD_SEC
 from robusta.integrations.prometheus.utils import get_prometheus_connect, get_prometheus_flags
 from robusta.utils.silence_utils import BaseSilenceParams, get_alertmanager_silences_connection
-
-
 class PrometheusHealthStatus(BaseModel):
     prometheus: bool = True
     prometheus_retention_time: str = ""

@@ -4,9 +4,8 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, SecretStr, validator
 
-from robusta.integrations import openshift
+from robusta.integrations.openshift
 from robusta.utils.documented_pydantic import DocumentedModel
-
 
 class ChartValuesFormat(Enum):
     """
@@ -17,8 +16,6 @@ class ChartValuesFormat(Enum):
     Bytes = auto()
     Percentage = auto()
     CPUUsage = auto()
-
-
 class ResourceChartItemType(Enum):
     """
     Item selection for Alert resource enricher
