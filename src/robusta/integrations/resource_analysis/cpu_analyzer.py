@@ -15,7 +15,7 @@ class CpuAnalyzer(PrometheusAnalyzer):
         :return: a float the percentage of total cpus requested
         """
         query = (
-            f"sum(avg_over_time(namespace_cpu:kube_pod_container_resource_requests" f":sum{{}}[{duration.seconds}s]))"
+            f"sum(avg_over_time(namespace_cpu:kube_pod_container_resource_requests:sum{{}}[{duration.seconds}s]))"
         )
         return self._get_query_value(self._query(query))
 

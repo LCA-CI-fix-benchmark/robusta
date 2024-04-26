@@ -9,6 +9,7 @@ from robusta.utils.documented_pydantic import DocumentedModel
 
 
 class ChartValuesFormat(Enum):
+from enum import auto
     """
     Format option for chart rendering
     """

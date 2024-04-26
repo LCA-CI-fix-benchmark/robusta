@@ -150,7 +150,7 @@ class ConfigLoader:
                 for (action_name, action_func) in playbook_actions:
                     actions_registry.add_action(action_func)
             except Exception:
-                logging.error(f"failed to module {playbooks_module}", exc_info=True)
+                logging.error(f"failed to load module {playbooks_module}", exc_info=True)
 
     def __reload_playbook_packages(self, change_name):
         logging.info(f"Reloading playbook packages due to change on {change_name}")
