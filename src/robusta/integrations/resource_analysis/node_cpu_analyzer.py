@@ -1,5 +1,4 @@
 from collections import OrderedDict
-
 from hikaru.model.rel_1_26 import Node
 
 from robusta.core.model.base_params import PrometheusParams

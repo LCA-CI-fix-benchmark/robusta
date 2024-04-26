@@ -149,8 +149,8 @@ class ConfigLoader:
                 playbook_actions = getmembers(m, Action.is_action)
                 for (action_name, action_func) in playbook_actions:
                     actions_registry.add_action(action_func)
-            except Exception:
-                logging.error(f"failed to module {playbooks_module}", exc_info=True)
+            except Exception as e:
+                logging.error(f"Failed to load module {playbooks_module}. Exception: {e}", exc_info=True)
 
     def __reload_playbook_packages(self, change_name):
         logging.info(f"Reloading playbook packages due to change on {change_name}")
