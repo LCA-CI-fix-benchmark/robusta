@@ -16,7 +16,7 @@ from robusta.model.alert_relabel_config import AlertRelabel
 from robusta.model.playbook_definition import PlaybookDefinition
 from robusta.runner.telemetry import Telemetry
 from robusta.utils.function_hashes import get_function_hash
-
+from robusta.integrations import openshift
 
 class SinksRegistry:
     def __init__(self, sinks: Dict[str, SinkBase]):

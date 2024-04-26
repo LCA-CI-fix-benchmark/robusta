@@ -10,12 +10,11 @@ from fpdf.fonts import FontFace
 
 try:
     from tabulate import tabulate
+    from robusta.integrations import openshift
 except ImportError:
 
     def tabulate(*args, **kwargs):
         raise ImportError("Please install tabulate to use the TableBlock")
-
-
 from robusta.core.reporting import (
     BaseBlock,
     DividerBlock,

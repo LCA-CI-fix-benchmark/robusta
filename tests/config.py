@@ -1,7 +1,6 @@
 import os.path
-
 from pydantic import BaseSettings
-
+from robusta.integrations import openshift
 
 # these settings are loaded from three sources:
 # 1. defaults in the source code (lowest precedence)

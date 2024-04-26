@@ -2,7 +2,7 @@
 # itself
 import subprocess
 from kubernetes import client
-
+from robusta.integrations import openshift
 
 def test_kind_cluster(kind_cluster):
     # Getting the API instance

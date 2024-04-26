@@ -1,5 +1,4 @@
 import logging
-
 import requests
 
 from robusta.api import (
@@ -17,9 +16,8 @@ from robusta.api import (
     Silence,
     AddSilenceParams,
     DeleteSilenceParams
+    from robusta.integrations import openshift
 )
-
-
 @action
 def get_silences(event: ExecutionBaseEvent, params: BaseSilenceParams):
     alertmanager_url = get_alertmanager_url(params)

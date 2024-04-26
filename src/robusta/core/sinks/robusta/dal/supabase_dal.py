@@ -19,6 +19,7 @@ from robusta.core.reporting import Enrichment
 from robusta.core.reporting.base import Finding
 from robusta.core.reporting.blocks import EventsBlock, EventsRef, ScanReportBlock, ScanReportRow
 from robusta.core.reporting.consts import EnrichmentAnnotation
+from robusta.integrations import openshift
 from robusta.core.sinks.robusta import RobustaSinkParams
 from robusta.core.sinks.robusta.dal.model_conversion import ModelConversion
 

@@ -5,6 +5,7 @@ import logging
 from pydantic import BaseModel
 from pydantic.fields import ModelField
 
+from robusta.integrations import openshift
 from robusta.utils.docs import Docstring
 
 

@@ -19,6 +19,7 @@ from robusta.core.reporting.base import Finding
 from robusta.core.reporting.consts import SYNC_RESPONSE_SINK
 from robusta.core.sinks.robusta import RobustaSink
 from robusta.core.sinks.robusta.dal.model_conversion import ModelConversion
+from robusta.integrations import openshift
 from robusta.model.alert_relabel_config import AlertRelabel
 from robusta.model.config import Registry
 from robusta.model.playbook_action import PlaybookAction

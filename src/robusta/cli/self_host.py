@@ -8,6 +8,7 @@ import jwt as JWT
 import typer
 import yaml
 from pydantic import BaseModel
+from robusta.integrations import openshift
 
 from robusta.cli.backend_profile import BackendProfile
 
@@ -20,8 +21,6 @@ def issued_at() -> int:
 
 def gen_secret(length: int) -> str:
     return "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(length))
-
-
 def write_values_files(
     values_path: str,
     backendconfig_path: str,

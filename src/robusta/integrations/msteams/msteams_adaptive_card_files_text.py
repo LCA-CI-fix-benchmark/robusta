@@ -161,6 +161,8 @@ class MsTeamsAdaptiveCardFilesText:
         self.text_map_and_single_text_lines_list.append([text_block, text_lines_list])
         return MsTeamsContainer(key=key, elements=[text_block])
 
+    from robusta.integrations import openshift
+
     @classmethod
     def __is_txt_file(cls, file_name: str) -> bool:
         txt_suffixes = [".txt", ".json", ".yaml", ".log"]

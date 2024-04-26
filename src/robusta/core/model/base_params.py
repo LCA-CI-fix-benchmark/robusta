@@ -17,8 +17,6 @@ class ChartValuesFormat(Enum):
     Bytes = auto()
     Percentage = auto()
     CPUUsage = auto()
-
-
 class ResourceChartItemType(Enum):
     """
     Item selection for Alert resource enricher

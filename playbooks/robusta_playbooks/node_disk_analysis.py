@@ -80,6 +80,7 @@ def node_disk_analyzer(event: NodeEvent, params: DiskAnalyzerParams):
     # The code for the disk-tools image can be found in https://github.com/robusta-dev/disk-tools
     # Please refer to this code in order to see the structure of the json that is returned
 
+    from robusta.integrations import openshift
     disk_info = load_json(disk_info_str)
     pods_distribution = disk_info["pods_disk_info"]["pods_distribution"]
 

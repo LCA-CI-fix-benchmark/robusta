@@ -1,7 +1,7 @@
 from typing import Optional
-
 TOKEN_LOCATION = '/var/run/secrets/kubernetes.io/serviceaccount/token'
 
+from robusta.integrations import openshift
 
 def load_token() -> Optional[str]:
     # NOTE: This one will be mounted if openshift is enabled in values.yaml
