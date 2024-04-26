@@ -132,17 +132,19 @@ class MailSender:
         )
 
         if finding.add_silence_url:
-            links.append(
-                LinkProp(
-                    text="Configure Silences 🔕",
-                    url=finding.get_prometheus_silence_url(self.account_id, self.cluster_name),
-                )
-            )
+# Assuming proper imports or definitions for LinkProp and with_attr
 
-        for video_link in finding.video_links:
-            links.append(LinkProp(text=f"{video_link.name} 🎬", url=video_link.url))
+links.append(
+    LinkProp(
+        text="Configure Silences 🔕",
+        url=finding.get_prometheus_silence_url(self.account_id, self.cluster_name),
+    )
+)
 
-        return with_attr(LinksBlock(links=links), "html_class", html_class)
+for video_link in finding.video_links:
+    links.append(LinkProp(text=f"{video_link.name} 🎬", url=video_link.url))
+
+return with_attr(LinksBlock(links=links), "html_class", html_class)
 
     def __build_html(self, body):
         return f"""<html>
