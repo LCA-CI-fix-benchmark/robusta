@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, tzinfo
 from typing import Optional, Union
 
-from robusta.core.model.base_params import PrometheusParams
+from robusta.core.model.base_params import BaseParams
 from robusta.core.model.env_vars import PROMETHEUS_REQUEST_TIMEOUT_SECONDS
 from robusta.integrations.prometheus.utils import get_prometheus_connect
 

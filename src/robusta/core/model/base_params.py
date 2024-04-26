@@ -5,8 +5,7 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, SecretStr, validator
 
 from robusta.integrations import openshift
-from robusta.utils.documented_pydantic import DocumentedModel
-
+import pandas as pd
 
 class ChartValuesFormat(Enum):
     """
