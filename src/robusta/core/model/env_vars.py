@@ -11,7 +11,7 @@ def load_bool(env_var, default: bool):
 
 ROBUSTA_LOGO_URL = os.environ.get("ROBUSTA_LOGO_URL", "https://docs.robusta.dev/master/_static/robusta-logo.png")
 PLAYBOOKS_ROOT = os.environ.get("PLAYBOOKS_ROOT", "/etc/robusta/playbooks/")
-# should be the same as the one in out Dockerfile
+# should be the same as the one in our Dockerfile
 DEFAULT_PLAYBOOKS_ROOT = os.environ.get("DEFAULT_PLAYBOOKS_ROOT", os.path.join(PLAYBOOKS_ROOT, "defaults"))
 # when developing playbooks, we want to install it using pip. Otherwise no need because it's pre baked into the image
 DEFAULT_PLAYBOOKS_PIP_INSTALL = load_bool("DEFAULT_PLAYBOOKS_PIP_INSTALL", False)

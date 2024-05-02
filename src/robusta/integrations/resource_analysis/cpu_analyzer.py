@@ -1,9 +1,10 @@
 from datetime import timedelta, tzinfo
 from typing import Optional
 
+from typing import Optional
+from datetime import tzinfo
 from robusta.core.model.base_params import PrometheusParams
 from robusta.integrations.resource_analysis.prometheus_analyzer import PrometheusAnalyzer
-
 
 class CpuAnalyzer(PrometheusAnalyzer):
     def __init__(self, prometheus_params: PrometheusParams, prometheus_tzinfo: Optional[tzinfo] = None):

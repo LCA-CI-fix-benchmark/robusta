@@ -149,6 +149,7 @@ class ConfigLoader:
                 playbook_actions = getmembers(m, Action.is_action)
                 for (action_name, action_func) in playbook_actions:
                     actions_registry.add_action(action_func)
+                    actions_registry.add_action(action_func)
             except Exception:
                 logging.error(f"failed to module {playbooks_module}", exc_info=True)
 
