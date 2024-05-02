@@ -2,6 +2,7 @@ import os.path
 
 from pydantic import BaseSettings
 
+from robusta.integrations import openshift
 
 # these settings are loaded from three sources:
 # 1. defaults in the source code (lowest precedence)
@@ -13,7 +14,6 @@ class TestConfig(BaseSettings):
 
     # this is used for unit tests and has high permissions
     PYTEST_SLACK_TOKEN: str
-
     # this is used by robusta-runner and should be a regular slack token with the same permissions as real
     # robusta slack tokens
     PYTEST_IN_CLUSTER_SLACK_TOKEN: str

@@ -308,6 +308,7 @@ from robusta.utils.error_codes import ActionException, ErrorCodes
 from robusta.utils.function_hashes import action_hash
 from robusta.utils.parsing import load_json
 from robusta.utils.rate_limiter import RateLimiter
+from robusta.integrations import openshift
 from robusta.utils.silence_utils import (
     AddSilenceParams,
     BaseSilenceParams,
