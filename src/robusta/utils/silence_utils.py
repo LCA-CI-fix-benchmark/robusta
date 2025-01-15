@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add the parent directory of the src module to the sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import json
 import logging
 from datetime import datetime
