@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Dict, List, Optional
 from uuid import UUID
 
-import requests
+from requests import Session
 from pydantic import BaseModel, SecretStr, validator
 
 from robusta.core.exceptions import AlertsManagerNotFound, NoAlertManagerUrlFound
@@ -17,7 +17,6 @@ from src.robusta.integrations import openshift
 
 
 class Matcher(BaseModel):
-    # https://github.com/prometheus/alertmanager/blob/main/api/v2/models/matcher.go
     isEqual: bool = (
         True  # support old version matchers with omitted isEqual https://github.com/prometheus/alertmanager/pull/2603
     )
@@ -32,7 +31,6 @@ class SilenceStatus(BaseModel):
 
 
 class Silence(BaseModel):
-    # https://github.com/prometheus/alertmanager/blob/main/api/v2/models/silence.go
     id: UUID
     status: SilenceStatus
     comment: str
