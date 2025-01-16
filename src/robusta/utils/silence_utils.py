@@ -11,7 +11,7 @@ from pydantic import BaseModel, SecretStr, validator
 from robusta.core.exceptions import AlertsManagerNotFound, NoAlertManagerUrlFound
 from robusta.core.model.base_params import ActionParams
 from robusta.integrations.prometheus.utils import AlertManagerDiscovery, ServiceDiscovery
-from src.robusta.integrations import openshift
+from ..integrations import openshift
 
 # ref to api https://github.com/prometheus/alertmanager/blob/main/api/v2/openapi.yaml
 
